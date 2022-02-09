@@ -1,0 +1,71 @@
+Instructions to reproduce the results:
+
+Aside from the originally stated setup as stated in part 1 of the assignment,
+you should just be able to run the code.
+
+  1. To run part 2, run `sudo ./run.sh` in the directory where the code/scripts
+     are located.
+  2. To run part 3, run `sudo ./run_bbr.sh` in the directory where the
+     code/scripts are located.
+
+Answers to the questions: Part 2
+  1. Q = 20:
+
+     - Average: 0.21337157575757576 seconds
+     - Standard deviation: 0.0467727653124287 seconds
+
+     Q = 100:
+
+     - Average: 1.3498922380952383 seconds
+     - Standard deviation: 1.5092259146142535 seconds
+
+  2. Increasing the buffer size adds latency to the network, which leads to
+     longer fetch times. Packet loss is not detected until the buffer is full.
+     Packets must wait until all previous packets have been sent so routers with
+     a smaller buffer will have a shorter wait time.
+
+  3. The max transmit queue length on the network interface reported by ifconfig
+     is 1000 packets. On ethernet, the maximum transmission unit (max size of
+     one packet) is 1500 bytes. If a packet enters the queue in position 1000 of
+     the queue, this means the queue would have to be drained of (1000 packets *
+     1500 bytes/packet * 8 bits/byte) = 12,000,000 bits = 12 Mb. If the queue
+     drains at 100 Mb/s, this would take (12 Mb) / (100 Mb/s) = 0.12 seconds to
+     drain the queue, and thus 0.12 seconds is the maximum time a packet might
+     wait in the queue before it leaves the NIC.
+
+  4. The RTT is directly propotional to the current queue size. A larger queue
+     size means more packets can be sent and queued in the router, which will
+     increase the RTT. 
+
+  5. One way to mitigate the bufferbloat problem is to reduce wait times by
+     simply reducing the queue size. We can do that by making the maximum buffer
+     size smaller.
+
+     Another way would be to do use random early detection to detect congestion.
+     We can drop packets at random depending on queue size. As the buffer fills
+     up we increase the likelihood of dropping a packet. This will allow TCP
+     senders to detect the queue filling up before it is already full.
+
+Part 3
+  1. Q = 20:
+
+     - Average: 0.14969627272727276 seconds
+     - Standard deviation: 0.01789815466071721 seconds
+
+     Q = 100:
+
+     - Average: 0.15230781818181816 seconds
+     - Standard deviation: 0.029564099490669675 seconds
+
+  2. q=20 gives a lower fetch time than q=100. Unlike in part 2, these fetch
+     times differences are statistically insignificant. In part 2, q=20 gives a
+     noticibly lower fetch time than q = 100.
+
+  3. For q = 100, the part 3 graph is significantly different than in part 2.
+     The graph in part2 shows the queue size increase to 100 and then stay high,
+     whereas in part3, the queue size for q=100 stays below 12 packets.
+     This is because in part 2 there is no way to midigate buffer bloat.
+
+  4. Yes. The RTT remains small even for a large queue size. Furthermore, the actual
+     queue size stays low even when the max queue size is large. This tells us we
+     have solved the buffer bloat problem.
